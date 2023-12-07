@@ -8,6 +8,7 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Supplier;
@@ -90,6 +91,7 @@ public class Application {
         }));
         try {
             salvaProdottiSuDisco(listaProdotti);
+//            salvaProdottiSuDiscoAlternativa(listaProdotti);
             System.out.println("file scritti su disco");
         }catch (IOException e){
             e.printStackTrace();
@@ -99,6 +101,7 @@ public class Application {
 
         try {
             listaLettaDaDisco = leggiProdottiDaDisco();
+//            listaLettaDaDisco = leggiProdottiDaDiscoAlternativa();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -122,6 +125,36 @@ public class Application {
         StringTokenizer stk = new StringTokenizer(filesString,System.lineSeparator());
         while (stk.hasMoreTokens()){
             String prod = stk.nextToken();
+            StringTokenizer ss2 = new StringTokenizer(prod,"@");
+            String nome = ss2.nextToken();
+            String categoria = ss2.nextToken();
+            double prezzo = Double.parseDouble(ss2.nextToken());
+
+            Product p = new Product(nome,categoria,prezzo);
+            res.add(p);
+        }
+
+        return res;
+    }
+
+    public static void salvaProdottiSuDiscoAlternativa(List<Product> l) throws IOException {
+        File f = new File("store.txt");
+
+        PrintWriter pw = new PrintWriter(f);
+        pw.write("");
+        for (Product p: l){
+            pw.append(p.getName()+"@"+p.getCategory()+"@"+p.getPrice() + System.lineSeparator());
+        }
+        pw.close();
+    }
+
+    public static List<Product> leggiProdottiDaDiscoAlternativa() throws IOException {
+        List<Product> res = new LinkedList<>();
+        File f = new File("store.txt");
+        Scanner sc = new Scanner(f);
+
+        while (sc.hasNextLine()){
+            String prod = sc.nextLine();
             StringTokenizer ss2 = new StringTokenizer(prod,"@");
             String nome = ss2.nextToken();
             String categoria = ss2.nextToken();
