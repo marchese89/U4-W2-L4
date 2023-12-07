@@ -80,5 +80,12 @@ public class Application {
         double media = listaOrdini.stream().mapToDouble(Order::getTotal).average().getAsDouble();
 
         System.out.println("media importi degli ordini: "+media);
+
+        System.out.println("---------------------------------------- EX5 --------------------------------------------");
+        Map<String,Double> importiPerCategoria = listaProdotti.stream().collect(Collectors.groupingBy(Product::getCategory,Collectors.reducing(0.0,Product::getPrice,Double::sum)));
+        importiPerCategoria.forEach(((cat, aDouble) -> {
+            System.out.print("Categoria: "+cat);
+            System.out.println(" , somma importi: "+aDouble);
+        }));
     }
 }
