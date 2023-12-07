@@ -8,7 +8,9 @@ import com.github.javafaker.Faker;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 public class Application {
 
@@ -24,8 +26,8 @@ public class Application {
         for(int i = 0; i < 100; i++){
             listaProdotti.add(productSupplier.get());
         }
-        System.out.println("Lista prodotti");
-        listaProdotti.forEach(System.out::println);
+//        System.out.println("Lista prodotti");
+//        listaProdotti.forEach(System.out::println);
 
         //creo un po' di Customer
         Supplier<Customer> customerSupplier = () -> {
@@ -36,8 +38,8 @@ public class Application {
         for (int i = 0; i < 10; i++){
             listaCustomer.add(customerSupplier.get());
         }
-        System.out.println("Lista clienti");
-        listaCustomer.forEach(System.out::println);
+//        System.out.println("Lista clienti");
+//        listaCustomer.forEach(System.out::println);
 
         //creo un po' di ordini
         Supplier<Order> orderSupplier = () -> {
@@ -59,7 +61,17 @@ public class Application {
         for (int i = 0; i < 30; i++){
             listaOrdini.add(orderSupplier.get());
         }
-        System.out.println("Lista ordini");
-        listaOrdini.forEach(System.out::println);
+//        System.out.println("Lista ordini");
+//        listaOrdini.forEach(System.out::println);
+
+        System.out.println("-------------------------------------- EX1 ----------------------------------------");
+        Map<Customer,List<Order>> ordiniPerCliente = listaOrdini.stream().collect(Collectors.groupingBy(order -> order.getCustomer()));
+        ordiniPerCliente.forEach(((customer, orders) -> {System.out.println(customer);orders.forEach(System.out::println);}));
+
+        System.out.println("--------------------------------------- EX2 ----------------------------------------");
+        Map<Customer,Double> acquistiCliente = listaOrdini.stream().collect(Collectors.groupingBy(order -> order.getCustomer(),Collectors.reducing(0.0,Order::getTotal,Double::sum)));
+        acquistiCliente.forEach(((customer, aDouble) -> {System.out.println(customer);System.out.println(aDouble);}));
+        System.out.println("---------------------------------------- EX3 ----------------------------------------");
+
     }
 }

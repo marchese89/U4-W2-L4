@@ -68,6 +68,13 @@ public class Order {
         this.customer = customer;
     }
 
+    public double getTotal(){
+        double sum = 0;
+        for (Product product: products)
+            sum+= product.getPrice();
+
+        return sum;
+    }
     @Override
     public String toString() {
         return "Order{" +
