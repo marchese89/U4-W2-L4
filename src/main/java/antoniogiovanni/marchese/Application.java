@@ -4,11 +4,12 @@ import antoniogiovanni.marchese.catalogo.Customer;
 import antoniogiovanni.marchese.catalogo.Order;
 import antoniogiovanni.marchese.catalogo.Product;
 import com.github.javafaker.Faker;
+import org.apache.commons.io.FileUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -87,5 +88,49 @@ public class Application {
             System.out.print("Categoria: "+cat);
             System.out.println(" , somma importi: "+aDouble);
         }));
+        try {
+            salvaProdottiSuDisco(listaProdotti);
+            System.out.println("file scritti su disco");
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+
+        List<Product> listaLettaDaDisco = null;
+
+        try {
+            listaLettaDaDisco = leggiProdottiDaDisco();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println("---------------------------------- LISTA LETTA DA DISCO ----------------------------------------");
+        listaLettaDaDisco.forEach(System.out::println);
+    }
+
+    public static void salvaProdottiSuDisco(List<Product> l) throws IOException {
+        File f = new File("store.txt");
+        FileUtils.writeStringToFile(f,"",false);
+        for(Product p: l){
+            FileUtils.writeStringToFile(f,p.getName()+"@"+p.getCategory()+"@"+p.getPrice() + System.lineSeparator(), StandardCharsets.UTF_8,true);
+        }
+
+    }
+
+    public static List<Product> leggiProdottiDaDisco() throws IOException {
+        List<Product> res = new LinkedList<>();
+        File f = new File("store.txt");
+        String filesString = FileUtils.readFileToString(f,StandardCharsets.UTF_8);
+        StringTokenizer stk = new StringTokenizer(filesString,System.lineSeparator());
+        while (stk.hasMoreTokens()){
+            String prod = stk.nextToken();
+            StringTokenizer ss2 = new StringTokenizer(prod,"@");
+            String nome = ss2.nextToken();
+            String categoria = ss2.nextToken();
+            double prezzo = Double.parseDouble(ss2.nextToken());
+
+            Product p = new Product(nome,categoria,prezzo);
+            res.add(p);
+        }
+
+        return res;
     }
 }
