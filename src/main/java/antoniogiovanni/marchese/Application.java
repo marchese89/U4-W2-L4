@@ -72,6 +72,13 @@ public class Application {
         Map<Customer,Double> acquistiCliente = listaOrdini.stream().collect(Collectors.groupingBy(order -> order.getCustomer(),Collectors.reducing(0.0,Order::getTotal,Double::sum)));
         acquistiCliente.forEach(((customer, aDouble) -> {System.out.println(customer);System.out.println(aDouble);}));
         System.out.println("---------------------------------------- EX3 ----------------------------------------");
+        double maxPrice = listaProdotti.stream().mapToDouble(Product::getPrice).max().getAsDouble();
+        List<Product> prodottiCostosi = listaProdotti.stream().filter(product -> product.getPrice() == maxPrice).toList();
+        prodottiCostosi.forEach(System.out::println);
 
+        System.out.println("----------------------------------------- EX4 -----------------------------------------");
+        double media = listaOrdini.stream().mapToDouble(Order::getTotal).average().getAsDouble();
+
+        System.out.println("media importi degli ordini: "+media);
     }
 }
