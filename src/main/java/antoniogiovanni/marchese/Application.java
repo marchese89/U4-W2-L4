@@ -67,28 +67,59 @@ public class Application {
 //        listaOrdini.forEach(System.out::println);
 
         System.out.println("-------------------------------------- EX1 ----------------------------------------");
-        Map<Customer,List<Order>> ordiniPerCliente = listaOrdini.stream().collect(Collectors.groupingBy(order -> order.getCustomer()));
+        /*
+        Raggruppare gli ordini per cliente utilizzando Stream e Lambda Expressions. Crea una mappa in cui la chiave è il cliente \
+        e il valore è una lista di ordini effettuati da quel cliente
+         */
+        Map<Customer,List<Order>> ordiniPerCliente = listaOrdini.stream().collect(Collectors.groupingBy(Order::getCustomer));
         ordiniPerCliente.forEach(((customer, orders) -> {System.out.println(customer);orders.forEach(System.out::println);}));
 
         System.out.println("--------------------------------------- EX2 ----------------------------------------");
-        Map<Customer,Double> acquistiCliente = listaOrdini.stream().collect(Collectors.groupingBy(order -> order.getCustomer(),Collectors.reducing(0.0,Order::getTotal,Double::sum)));
-        acquistiCliente.forEach(((customer, aDouble) -> {System.out.println(customer);System.out.println(aDouble);}));
+        /*
+        Dato un elenco di ordini, calcola il totale delle vendite per ogni cliente utilizzando Stream e Lambda Expressions.
+        Crea una mappa in cui la chiave è il cliente e il valore è l'importo totale dei suoi acquisti
+         */
+        //Map<Customer,Double> acquistiCliente = listaOrdini.stream().collect(Collectors.groupingBy(Order::getCustomer,Collectors.reducing(0.0,Order::getTotal,Double::sum)));
+        //                                                                               raggruppa per Customer ---------------- somma i double ottenuti dagli ordini --- prendiamo i prezzi dei prodotti degli ordini e li sommiamo
+        Map<Customer,Double> aquistiClienteAlt = listaOrdini.stream().collect(Collectors.groupingBy(Order::getCustomer,Collectors.summingDouble(order-> order.getProducts().stream().mapToDouble(Product::getPrice).sum())));
+
+        aquistiClienteAlt.forEach(((customer, aDouble) -> {
+            System.out.println(customer+" "+aDouble);
+        }));
+
         System.out.println("---------------------------------------- EX3 ----------------------------------------");
-        double maxPrice = listaProdotti.stream().mapToDouble(Product::getPrice).max().getAsDouble();
-        List<Product> prodottiCostosi = listaProdotti.stream().filter(product -> product.getPrice() == maxPrice).toList();
+        /*
+        Dato un elenco di prodotti, trova i prodotti più costosi utilizzando Stream e Lambda Expressions
+         */
+        //prodotti più costosi
+//        double maxPrice = listaProdotti.stream().mapToDouble(Product::getPrice).max().getAsDouble();
+        List<Product> prodottiCostosi = listaProdotti.stream().sorted(Comparator.comparing(Product::getPrice).reversed()).limit(3).toList();
         prodottiCostosi.forEach(System.out::println);
 
         System.out.println("----------------------------------------- EX4 -----------------------------------------");
-        double media = listaOrdini.stream().mapToDouble(Order::getTotal).average().getAsDouble();
+        /*
+        Dato un elenco di ordini, calcola la media degli importi degli ordini utilizzando Stream e Lambda Expressions
+         */
+        double media = listaOrdini.stream().mapToDouble(order -> order.getProducts().stream().mapToDouble(Product::getPrice).sum()).average().getAsDouble();
 
         System.out.println("media importi degli ordini: "+media);
 
         System.out.println("---------------------------------------- EX5 --------------------------------------------");
-        Map<String,Double> importiPerCategoria = listaProdotti.stream().collect(Collectors.groupingBy(Product::getCategory,Collectors.reducing(0.0,Product::getPrice,Double::sum)));
+        /*
+        Dato un elenco di prodotti, raggruppa i prodotti per categoria e calcola la somma degli importi per ogni categoria
+        utilizzando Stream e Lambda Expressions
+         */
+        Map<String,Double> importiPerCategoria = listaProdotti.stream().collect(Collectors.groupingBy(Product::getCategory,Collectors.summingDouble(Product::getPrice)));
         importiPerCategoria.forEach(((cat, aDouble) -> {
             System.out.print("Categoria: "+cat);
             System.out.println(" , somma importi: "+aDouble);
         }));
+        System.out.println("------------------------------------------- EX6 ---------------------------------------------");
+        /*
+        Usando la classe Apache Commons IO FileUtils implementare un metodo salvaProdottiSuDisco che salvi su disco un file
+        contenente la lista dei prodotti. Utilizzare un formato simile al seguente per storicizzare i dati su file:
+        nomeprodotto1@categoriaprodotto1@prezzoprodotto1#nomeprodotto2@categoriaprodotto2@prezzoprodotto2
+         */
         try {
             salvaProdottiSuDisco(listaProdotti);
 //            salvaProdottiSuDiscoAlternativa(listaProdotti);
@@ -96,7 +127,7 @@ public class Application {
         }catch (IOException e){
             e.printStackTrace();
         }
-
+        System.out.println("------------------------------------------------ EX7 ---------------------------------------------");
         List<Product> listaLettaDaDisco = null;
 
         try {
